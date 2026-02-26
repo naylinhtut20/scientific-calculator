@@ -37,7 +37,7 @@ class MainWindow(QMainWindow):
         self.stack.setCurrentIndex(0)
 
 
-
+# Calculator_Page
 class CalculatorPage(QWidget):
     def __init__(self):
         super().__init__()
@@ -243,7 +243,7 @@ class CalculatorPage(QWidget):
             b.setEnabled(True)
 
 
-
+# History_Page
 class HistoryPage(QWidget):
     def __init__(self):
         super().__init__()

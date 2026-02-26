@@ -134,5 +134,9 @@
     {
         "expression": "7+8",
         "answer": 15
+    },
+    {
+        "expression": "8\u00f72",
+        "answer": "4"
     }
 ]
