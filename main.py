@@ -12,7 +12,7 @@ import operators as op
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
-
+        # Create main window
         self.stack = QStackedWidget()
 
         self.calc_page = CalculatorPage()
@@ -28,17 +28,23 @@ class MainWindow(QMainWindow):
 
         self.setGeometry(0, 0, 450, 500)
 
+    # Switch to history page
     def show_history(self):
         histories = op.load_histories()
         self.history_page.load_text(histories)
         self.stack.setCurrentIndex(1)
 
+    # Switch to calculator page
     def show_calculator(self):
         self.stack.setCurrentIndex(0)
 
 
 # Calculator_Page
 class CalculatorPage(QWidget):
+    """
+    CalculatorPage handles the scientific calculator UI
+    and expression evaluation.
+    """
     def __init__(self):
         super().__init__()
 
@@ -127,57 +133,18 @@ class CalculatorPage(QWidget):
             return
 
         if t == "=":
+            raw_expression = self.display.text()
 
-            expr = self.display.text()
-            raw_expr = expr
-
-            if not expr:
+            expression = self.handle_expression(raw_expression)
+            if not expression:
                 return
 
-            elif expr[-1] in "+-×÷":
-                expr = expr[:-1]
-
-            expr = (expr.replace("×", "*")
-                    .replace("÷", "/")
-                    .replace("^", "**")
-                    .replace("√", "sqrt")
-                    .replace("π", "pi"))
-            expr = re.sub(r"(\d|\))\(", r"\1*(", expr)
-            expr = re.sub(r'(\d+)!', r'fact(\1)', expr)
-            expr = re.sub(r'sqrt(\d+(\.\d+)?)', r'sqrt(\1)', expr)
-
-            if "sqrt(" in expr and expr.count("(") != expr.count(")"):
-                self.display.setText("Incomplete sqrt")
+            answer = self.evaluate_expression(expression)
+            if answer is None:
                 return
-
-            try:
-                expression = expr
-                answer = op.eval_expr(expr)
-                print("EVAL EXPR:", expr)
-                if isinstance(answer, float):
-                    answer = f"{answer:.6f}".rstrip("0").rstrip(".")
-
-                self.display.setText(str(answer))
-
-                history = op.load_histories()
-                history.append({
-                    "expression": raw_expr, "answer": answer
-                })
-                op.add_history(history)
-                self.disable_after_equal()
-
-            except ZeroDivisionError:
-                self.display.setText("Cannot divide by zero")
-                return
-
-            except ValueError as e:
-                self.display.setText(str(e))
-                return
-
-            except Exception:
-                self.display.setText("Invalid expression")
-                return
-
+            
+            self.display.setText(str(answer))
+            self.add_history(raw_expression, answer)
             self.disable_after_equal()
             return
 
@@ -191,6 +158,58 @@ class CalculatorPage(QWidget):
 
 
         self.add_text(t)
+
+    def handle_expression(self, expression: str):
+        expr = self.display.text()
+
+        if not expr:
+            return
+
+        elif expr[-1] in "+-×÷":
+            expr = expr[:-1]
+
+        expr = (expr.replace("×", "*")
+                .replace("÷", "/")
+                .replace("^", "**")
+                .replace("√", "sqrt")
+                .replace("π", "pi"))
+        expr = re.sub(r"(\d|\))\(", r"\1*(", expr)
+        expr = re.sub(r'(\d+)!', r'fact(\1)', expr)
+        expr = re.sub(r'sqrt(\d+(\.\d+)?)', r'sqrt(\1)', expr)
+
+        if "sqrt(" in expr and expr.count("(") != expr.count(")"):
+            self.display.setText("Incomplete sqrt")
+            return
+        
+        return expr
+        
+    def evaluate_expression(self, expression: str):
+        try:
+            answer = op.eval_expr(expression)
+            print("EVAL EXPR:", expression)
+            if isinstance(answer, float):
+                answer = f"{answer:.6f}".rstrip("0").rstrip(".")
+                
+            return answer
+
+        except ZeroDivisionError:
+            self.display.setText("Cannot divide by zero")
+            return
+
+        except ValueError as e:
+            self.display.setText(str(e))
+            return
+
+        except Exception:
+            self.display.setText("Invalid expression")
+            return
+        
+    def add_history(self, raw_expression, answer):
+        history = op.load_histories()
+        history.append({
+            "expression": raw_expression, "answer": answer
+        })
+        op.add_history(history)
 
     def smart_parenthesis(self):
         t = self.display.text()

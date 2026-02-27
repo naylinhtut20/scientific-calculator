@@ -1,13 +1,5 @@
 [
     {
-        "expression": "4+5",
-        "answer": 9
-    },
-    {
-        "expression": ".01+.1",
-        "answer": 0.11
-    },
-    {
         "expression": "2*(((2+1)*6)-8)",
         "answer": 20
     },
@@ -138,5 +130,13 @@
     {
         "expression": "8\u00f72",
         "answer": "4"
+    },
+    {
+        "expression": "=",
+        "answer": null
+    },
+    {
+        "expression": "8-2",
+        "answer": 6
     }
 ]

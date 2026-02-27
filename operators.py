@@ -92,6 +92,18 @@ def eval_node(node):
     raise ValueError(f"Unsupported expression: {type(node).__name__}")
 
 def eval_expr(expr):
+    """
+    Parse and safely evaluate a mathematical expression using AST.
+
+    Parameters:
+        expr (str): Expression string to evaluate.
+
+    Returns:
+        int | float: Computed result.
+
+    Raises:
+        ValueError: If expression contains unsupported syntax.
+    """
     parsed = ast.parse(expr, mode='eval')
     return eval_node(parsed.body)
 
